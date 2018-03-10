@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
  * Created by GabrielK on 31-Jan-17.
  */
 
+// todo: can probably be removed
 public class ScreenStateCounter {
     private static final String SCREEN_STATE_SHARED_PREFS = "SCREEN_STATE_SHARED_PREFS";
     private static final String SCREEN_ON_COUNTER_SHARED_PREFS = "SCREEN_ON_COUNTER_SHARED_PREFS";
@@ -17,8 +18,7 @@ public class ScreenStateCounter {
 
     public static void IncrementCounter(Context context, int counterType) {
         String preferencesName;
-        switch (counterType)
-        {
+        switch (counterType) {
             case SCREEN_ON_COUNTER:
             default:
                 preferencesName = SCREEN_ON_COUNTER_SHARED_PREFS;

@@ -6,7 +6,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+
+import gabrielk.usagetracker.db.ScreenStateContract;
+import gabrielk.usagetracker.db.ScreenStateDbHelper;
+import gabrielk.usagetracker.model.ScreenState;
+import gabrielk.usagetracker.view.HomeActivity;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -19,24 +23,52 @@ public class ScreenReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        String intentAction = intent.getAction();
+        ScreenStateType screenStateType = ScreenStateType.ON;
+
         // todo: http://stackoverflow.com/questions/3446202/android-detect-phone-unlock-event-not-screen-on
-        if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-            // todo: do smth here
-        } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-            ScreenStateCounter.IncrementCounter(context, ScreenStateCounter.SCREEN_ON_COUNTER);
-        } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
-            ScreenStateCounter.IncrementCounter(context, ScreenStateCounter.SCREEN_UNLOCK_COUNTER);
+        if (intentAction.equals(Intent.ACTION_SCREEN_OFF)) {
+            // todo: record the time to enable timing of screen on
+            return;
+        } else if (intentAction.equals(Intent.ACTION_SCREEN_ON)) {
+            screenStateType = ScreenStateType.ON;
+        } else if (intentAction.equals(Intent.ACTION_USER_PRESENT)) {
+            screenStateType = ScreenStateType.UNLOCKED;
         }
 
+        ScreenState screenState = new ScreenState(screenStateType, TrackerDateUtils.getNormalizedTimeUtc());
+        ScreenStateDbHelper dbHelper = new ScreenStateDbHelper(context);
+        dbHelper.insert(screenState);
+
+        // todo: refactor - Notification or smth like that
         UpdateNotification(context);
     }
 
+    // todo: refactor - so it is called from some event of the content resolver update or smth
     public static void UpdateNotification(Context context) {
         Intent intent = new Intent(context, HomeActivity.class);
         PendingIntent contentIntent =  PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        int screenOnCounter = ScreenStateCounter.GetCounter(context, ScreenStateCounter.SCREEN_ON_COUNTER);
-        int screenUnlockCounter = ScreenStateCounter.GetCounter(context, ScreenStateCounter.SCREEN_UNLOCK_COUNTER);
+//        int screenOnCounter = ScreenStateCounter.GetCounter(context, ScreenStateCounter.SCREEN_ON_COUNTER);
+//        int screenUnlockCounter = ScreenStateCounter.GetCounter(context, ScreenStateCounter.SCREEN_UNLOCK_COUNTER);
+        int screenOnCounter = 0;
+        int screenUnlockCounter = 0;
+        // todo: refactor
+        try {
+            screenOnCounter = context.getContentResolver().query(ScreenStateContract.ScreenStateEntry.CONTENT_URI,
+                    new String[] { ScreenStateContract.ScreenStateEntry._ID, ScreenStateContract.ScreenStateEntry.COLUMN_STATE, ScreenStateContract.ScreenStateEntry.COLUMN_DATE },
+                    ScreenStateContract.ScreenStateEntry.COLUMN_STATE + "=?", new String[] { String.valueOf(ScreenStateType.ON.ordinal()) }, ScreenStateContract.ScreenStateEntry.COLUMN_DATE).getCount();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // todo: refactor
+        try {
+            screenUnlockCounter = context.getContentResolver().query(ScreenStateContract.ScreenStateEntry.CONTENT_URI,
+                    new String[] { ScreenStateContract.ScreenStateEntry._ID, ScreenStateContract.ScreenStateEntry.COLUMN_STATE, ScreenStateContract.ScreenStateEntry.COLUMN_DATE },
+                    ScreenStateContract.ScreenStateEntry.COLUMN_STATE + "=?", new String[] { String.valueOf(ScreenStateType.UNLOCKED.ordinal()) }, ScreenStateContract.ScreenStateEntry.COLUMN_DATE).getCount();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
                         // todo: set icon
