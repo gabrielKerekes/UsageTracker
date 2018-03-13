@@ -10,10 +10,17 @@ public class ScreenState {
     private int id;
     private ScreenStateType stateType;
     private long normalizedTimeUtc;
+    private int count;
 
     public ScreenState(ScreenStateType stateType, long normalizedTimeUtc) {
         this.stateType = stateType;
         this.normalizedTimeUtc = normalizedTimeUtc;
+    }
+
+    public ScreenState(ScreenStateType stateType, long normalizedTimeUtc, int count) {
+        this.stateType = stateType;
+        this.normalizedTimeUtc = normalizedTimeUtc;
+        this.count = count;
     }
 
     public int getId() { return id; }
@@ -25,4 +32,7 @@ public class ScreenState {
 
     public long getNormalizedTimeUtc() { return normalizedTimeUtc; }
     public void setNormalizedTimeUtc(long normalizedTimeUtc) { this.normalizedTimeUtc = normalizedTimeUtc; }
+
+    public int getCount() { return count; }
+    public void setCount(int count) { this.count = count; }
 }
