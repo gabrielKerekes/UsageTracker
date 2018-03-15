@@ -5,6 +5,7 @@ import android.text.format.DateUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -20,10 +21,14 @@ public class TrackerDateUtils {
         return System.currentTimeMillis();
     }
 
-    public static String getFriendlyDateString(Context context, long normalizedUtc, boolean showFullDate) {
+    public static String getFriendlyDateString(long normalizedUtc, boolean showFullDate) {
         DateFormat formatter = new SimpleDateFormat("dd. MM. YYYY HH:mm:ss");
         formatter.setTimeZone(TimeZone.getDefault());
         return formatter.format(normalizedUtc);
+    }
+
+    public static String getFriendlyDateString(Date date, boolean showFullDate) {
+        return getFriendlyDateString(date.getTime(), showFullDate);
     }
 
     private static long elapsedDaysSinceEpoch(long utcDate) {

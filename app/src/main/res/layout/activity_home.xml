@@ -39,8 +39,6 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/screen_state_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:adapter="@{viewModel.adapter}"
-            app:data="@{viewModel.data}"/>
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 </layout>

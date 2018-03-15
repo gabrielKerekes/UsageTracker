@@ -13,24 +13,26 @@ import android.util.Log;
  */
 
 public class UpdateService extends Service {
-    private IntentFilter mIntentFilter;
-    private BroadcastReceiver mReceiver;
+    private IntentFilter intentFilter;
+    private BroadcastReceiver receiver;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         initializeScreenIntentFilter();
-
-        mReceiver = new ScreenReceiver();
-        registerReceiver(mReceiver, mIntentFilter);
+        initializeReceiver();
     }
 
     private void initializeScreenIntentFilter() {
-        // register receiver that handles screen on and screen off logic
-        mIntentFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-        mIntentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-        mIntentFilter.addAction(Intent.ACTION_USER_PRESENT);
+        intentFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+    }
+
+    private void initializeReceiver() {
+        receiver = new ScreenReceiver();
+        registerReceiver(receiver, intentFilter);
     }
 
     @Override
@@ -43,8 +45,7 @@ public class UpdateService extends Service {
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent)
-    {
+    public IBinder onBind(Intent intent) {
         return null;
     }
 
@@ -52,6 +53,6 @@ public class UpdateService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        unregisterReceiver(mReceiver);
+        unregisterReceiver(receiver);
     }
 }
