@@ -47,13 +47,18 @@ public class ScreenStateDbHelper extends SQLiteOpenHelper {
     // todo: refactor - method CreateContentValues from screen state should be created and put somewhere
     public void insert(ScreenState screenState) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(ScreenStateContract.ScreenStateEntry.COLUMN_STATE, screenState.getStateTypeAsInt());
-        contentValues.put(ScreenStateContract.ScreenStateEntry.COLUMN_DATE, TrackerDateUtils.getNormalizedTimeUtc());
+        contentValues.put(ScreenStateEntry.COLUMN_STATE, screenState.getStateTypeAsInt());
+        contentValues.put(ScreenStateEntry.COLUMN_DATE, TrackerDateUtils.getNormalizedTimeUtc());
+        // todo: refactor
+        context.getContentResolver().insert(ScreenStateEntry.CONTENT_URI, contentValues);
 
-        context.getContentResolver().insert(ScreenStateContract.ScreenStateEntry.CONTENT_URI, contentValues);
+        context.getContentResolver().notifyChange(ScreenStateEntry.CONTENT_URI, null);
     }
 
+    // todo: refactor
     public void deleteAll() {
-        context.getContentResolver().delete(ScreenStateContract.ScreenStateEntry.CONTENT_URI, null, null);
+        context.getContentResolver().delete(ScreenStateEntry.CONTENT_URI, null, null);
+
+        context.getContentResolver().notifyChange(ScreenStateEntry.CONTENT_URI, null);
     }
 }
